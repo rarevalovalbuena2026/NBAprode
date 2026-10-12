@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prode NBA - Tabla Oficial</title>
+    <title>Prode NBA - Plataforma Oficial</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -23,7 +23,7 @@
             }
         }
     </script>
-    <!-- FontAwesome Font Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
@@ -32,26 +32,11 @@
             background-color: #0B0E14;
             color: #E2E8F0;
         }
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0B0E14;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #232A3B;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #006BB6;
-        }
-        details > summary {
-            list-style: none;
-        }
-        details > summary::-webkit-details-marker {
-            display: none;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0E14; }
+        ::-webkit-scrollbar-thumb { background: #232A3B; border-radius: 4px; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col pb-12">
@@ -65,23 +50,26 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-black text-white tracking-wide">PRODE NBA</h1>
-                    <p class="text-xs text-slate-400 font-medium">Tabla Oficial de Posiciones y Fixture</p>
+                    <p class="text-xs text-slate-400 font-medium">Plataforma de Pronósticos</p>
                 </div>
             </div>
 
-            <!-- Menú limpio para los participantes (Sin opciones de edición) -->
+            <!-- Menú de Navegación -->
             <nav class="flex items-center gap-1 bg-slate-950/60 p-1 rounded-2xl border border-slate-800 text-xs font-bold overflow-x-auto w-full md:w-auto">
                 <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-white bg-nba-blue transition">
                     <i class="fa-solid fa-trophy mr-1.5"></i> Ranking
                 </button>
+                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-amber-400 hover:text-white transition">
+                    <i class="fa-solid fa-user-pen mr-1.5"></i> Cargar Mis Pronósticos 🎮
+                </button>
                 <button onclick="cambiarTab('fixture')" id="btn-tab-fixture" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Fixture y Resultados
+                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Fixture
                 </button>
                 <button onclick="cambiarTab('equipos')" id="btn-tab-equipos" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-shield-halved mr-1.5"></i> Equipos
                 </button>
-                <!-- Botón secreto para acceder al panel de administración -->
-                <button onclick="intentarAccesoAdmin()" class="px-3 py-2 rounded-xl text-slate-600 hover:text-slate-300 transition" title="Panel Admin">
+                <!-- Acceso Administrador Protegido -->
+                <button onclick="intentarAccesoAdmin()" class="px-3 py-2 rounded-xl text-slate-600 hover:text-slate-300 transition" title="Panel Admin Privado">
                     <i class="fa-solid fa-lock"></i>
                 </button>
             </nav>
@@ -90,18 +78,18 @@
 
     <main class="max-w-7xl mx-auto px-4 mt-6 flex-1 w-full">
 
-        <!-- 1. RANKING (Visible para todos) -->
+        <!-- 1. RANKING (Público) -->
         <section id="sec-ranking" class="space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
                 <div>
                     <h2 class="text-xl font-black text-white flex items-center gap-2">
                         <i class="fa-solid fa-ranking-star text-amber-400"></i> Tabla de Clasificación General
                     </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">3 Pts Victoria Normal | 2 Pts Victoria Tiempo Extra (OT)</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Reglas: 3 Pts Victoria Normal | 2 Pts Victoria Tiempo Extra (OT)</p>
                 </div>
                 <div>
                     <button onclick="copiarRankingWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg transition">
-                        <i class="fa-brands fa-whatsapp text-sm"></i> Compartir Ranking por WhatsApp
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Compartir Ranking
                     </button>
                 </div>
             </div>
@@ -118,54 +106,93 @@
                                 <th class="py-3.5 px-4 text-center">Total Puntos</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-posiciones-body" class="divide-y divide-slate-800/50 font-medium">
-                            <!-- Dinámico -->
-                        </tbody>
+                        <tbody id="tabla-posiciones-body" class="divide-y divide-slate-800/50 font-medium"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- 2. FIXTURE (Solo lectura para los amigos) -->
-        <section id="sec-fixture" class="hidden space-y-6">
-            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-4">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-basketball text-nba-red"></i> Calendario y Resultados Oficiales
-                    </h2>
+        <!-- 2. PORTAL DE PRONÓSTICOS PARA AMIGOS -->
+        <section id="sec-pronosticos" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-6 shadow-xl">
+                <!-- Ingreso de Nombre -->
+                <div id="user-login-box" class="max-w-md mx-auto text-center space-y-4 py-4">
+                    <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/30 flex items-center justify-center text-xl mx-auto">
+                        <i class="fa-solid fa-user-pen"></i>
+                    </div>
+                    <h2 class="text-lg font-black text-white">Ingresa tu Nombre para Votar</h2>
+                    <p class="text-xs text-slate-400">Escribe tu nombre o apodo para seleccionar tus ganadores en el fixture.</p>
+                    <div class="space-y-3 pt-2">
+                        <input type="text" id="input-nombre-usuario" placeholder="Ej: Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400 font-bold text-center">
+                        <button onclick="iniciarSesionUsuario()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider py-3 rounded-xl transition shadow-lg">
+                            Cargar Partidos
+                        </button>
+                    </div>
                 </div>
-                <div id="public-contenedor-acordeon" class="space-y-4 pt-2">
-                    <!-- Dinámico -->
+
+                <!-- Panel de Elección de Ganadores -->
+                <div id="user-workspace" class="hidden space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div>
+                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-extrabold">Participante:</p>
+                            <h3 id="user-nombre-display" class="text-base font-black text-amber-400"></h3>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="guardarVotosUsuario()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-lg flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Mis Pronósticos
+                            </button>
+                            <button onclick="cerrarSesionUsuario()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-3.5 py-2.5 rounded-xl transition">
+                                Cambiar Nombre
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="user-acordeon-partidos" class="space-y-4"></div>
+
+                    <div class="flex justify-center pt-2">
+                        <button onclick="guardarVotosUsuario()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-8 py-3 rounded-xl transition shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Mis Pronósticos
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. EQUIPOS -->
+        <!-- 3. FIXTURE (Público de Solo Lectura) -->
+        <section id="sec-fixture" class="hidden space-y-6">
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h2 class="text-lg font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-basketball text-nba-red"></i> Calendario General de Partidos
+                </h2>
+                <div id="public-contenedor-acordeon" class="space-y-4 pt-2"></div>
+            </div>
+        </section>
+
+        <!-- 4. EQUIPOS -->
         <section id="sec-equipos" class="hidden space-y-8">
             <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-2">
                 <h2 class="text-xl font-black text-white flex items-center gap-3">
-                    <i class="fa-solid fa-shield-halved text-nba-red"></i> 30 Equipos Oficiales de la NBA
+                    <i class="fa-solid fa-shield-halved text-nba-red"></i> 30 Equipos Oficiales NBA
                 </h2>
-                <p class="text-xs text-slate-400">Organizados por Conferencias y Divisiones.</p>
             </div>
             <div id="contenedor-directorios" class="space-y-10"></div>
         </section>
 
-        <!-- 4. PANEL DE ADMINISTRACIÓN (Oculto, protegido por contraseña) -->
+        <!-- 5. PANEL ADMIN PRIVADO (Oculto) -->
         <section id="sec-admin" class="hidden space-y-6">
             <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-2xl border border-rose-900/40 space-y-4 shadow-xl">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-gear text-rose-500"></i> Panel de Administración (Privado)
+                        <i class="fa-solid fa-gear text-rose-500"></i> Panel Administrador (Solo Tú)
                     </h2>
-                    <button onclick="cambiarTab('ranking')" class="text-xs text-slate-400 hover:text-white">Volver al sitio público</button>
+                    <button onclick="cambiarTab('ranking')" class="text-xs text-slate-400 hover:text-white">Salir del Admin</button>
                 </div>
                 
-                <p class="text-xs text-slate-400">Pega tu calendario completo en texto rápido para actualizar los partidos:</p>
+                <p class="text-xs text-slate-400">Pega tu calendario completo en texto para agregar partidos:</p>
                 <textarea id="input-raw-fixture" oninput="actualizarVistaPreviaParser()" rows="4" placeholder="Pega tu lista de partidos aquí..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-nba-blue font-mono"></textarea>
 
                 <div id="box-preview-parser" class="hidden bg-slate-950/80 border border-amber-500/30 rounded-xl p-3 space-y-2">
-                    <p class="text-xs font-bold text-amber-400"><i class="fa-solid fa-eye"></i> Vista previa:</p>
+                    <p class="text-xs font-bold text-amber-400"><i class="fa-solid fa-eye"></i> Vista previa detectada:</p>
                     <div id="lista-preview-matches" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
                 </div>
 
@@ -176,30 +203,18 @@
                 </div>
             </div>
 
-            <!-- Gestión de Resultados y Participantes para el Admin -->
-            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-6">
-                <h3 class="text-sm font-black text-white">Marcar Resultados Reales y Cargar Pronósticos de Amigos</h3>
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h3 class="text-sm font-black text-white">Marcar Resultados Reales de Partidos</h3>
                 <div id="admin-gestion-acordeon" class="space-y-4"></div>
-
-                <!-- Carga manual de pronósticos que te pasen por WhatsApp -->
-                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4 mt-6">
-                    <h4 class="text-xs font-bold text-amber-400">Cargar Pronóstico de un Amigo</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <input type="text" id="admin-nombre-amigo" placeholder="Nombre del amigo" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                        <button onclick="crearParticipanteVacio()" class="bg-nba-blue text-white font-bold text-xs px-4 py-2 rounded-xl">Crear Participante</button>
-                    </div>
-                    <div id="admin-lista-amigos-votos" class="space-y-3 pt-2"></div>
-                </div>
-
                 <div class="flex justify-between pt-4 border-t border-slate-800">
-                    <button onclick="reiniciarTodo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 font-bold text-xs px-3 py-2 rounded-xl">Reiniciar Todo</button>
+                    <button onclick="reiniciarTodo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 font-bold text-xs px-3 py-2 rounded-xl">Reiniciar Datos</button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Notificación Toast -->
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white font-bold text-xs px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
         <i class="fa-solid fa-circle-check text-sm"></i> <span id="toast-msg">Mensaje</span>
     </div>
@@ -239,6 +254,8 @@
         ];
 
         let appState = { matches: [], players: [] };
+        let currentUsuario = "";
+        let tempVotosUsuario = {};
 
         window.onload = function() {
             cargarEstado();
@@ -247,19 +264,19 @@
         };
 
         function cargarEstado() {
-            const saved = localStorage.getItem('prode_nba_solo_lectura_v1');
+            const saved = localStorage.getItem('prode_nba_plataforma_v1');
             if (saved) {
                 try { appState = JSON.parse(saved); } catch(e) { appState = { matches: [], players: [] }; }
             }
         }
 
         function guardarEstado() {
-            localStorage.setItem('prode_nba_solo_lectura_v1', JSON.stringify(appState));
+            localStorage.setItem('prode_nba_plataforma_v1', JSON.stringify(appState));
             actualizarVistas();
         }
 
         function cambiarTab(tab) {
-            ['ranking', 'fixture', 'equipos', 'admin'].forEach(t => {
+            ['ranking', 'pronosticos', 'fixture', 'equipos', 'admin'].forEach(t => {
                 const sec = document.getElementById(`sec-${t}`);
                 const btn = document.getElementById(`btn-tab-${t}`);
                 if (sec) {
@@ -276,14 +293,67 @@
 
         function intentarAccesoAdmin() {
             const pass = prompt("Contraseña de Administrador:");
-            if (pass === "1234") { // Puedes cambiar tu contraseña aquí
+            if (pass === "1234") {
                 cambiarTab('admin');
             } else if (pass !== null) {
                 alert("Contraseña incorrecta");
             }
         }
 
-        // --- ADMIN: PARSER Y GESTIÓN ---
+        // --- VOTOS DE AMIGOS ---
+        function iniciarSesionUsuario() {
+            const input = document.getElementById('input-nombre-usuario');
+            const nombre = input.value.trim();
+
+            if (!nombre) { mostrarToast('Escribe tu nombre.'); return; }
+            if (appState.matches.length === 0) { mostrarToast('El administrador todavía no cargó partidos.'); return; }
+
+            currentUsuario = nombre;
+            document.getElementById('user-nombre-display').textContent = nombre;
+
+            let jugadorExistente = appState.players.find(p => p.name.toLowerCase() === nombre.toLowerCase());
+            tempVotosUsuario = jugadorExistente ? { ...jugadorExistente.votes } : {};
+
+            document.getElementById('user-login-box').classList.add('hidden');
+            document.getElementById('user-workspace').classList.remove('hidden');
+
+            renderUserAcordeon();
+            mostrarToast(`¡Bienvenido, ${nombre}!`);
+        }
+
+        function cerrarSesionUsuario() {
+            currentUsuario = "";
+            tempVotosUsuario = {};
+            document.getElementById('input-nombre-usuario').value = '';
+            document.getElementById('user-workspace').classList.add('hidden');
+            document.getElementById('user-login-box').classList.remove('hidden');
+        }
+
+        function seleccionarVotoUsuario(matchId, teamId) {
+            tempVotosUsuario[matchId] = teamId;
+            renderUserAcordeon();
+        }
+
+        function guardarVotosUsuario() {
+            if (!currentUsuario) return;
+            if (Object.keys(tempVotosUsuario).length === 0) { mostrarToast('Selecciona al menos un ganador.'); return; }
+
+            let jugador = appState.players.find(p => p.name.toLowerCase() === currentUsuario.toLowerCase());
+            if (jugador) {
+                jugador.votes = { ...tempVotosUsuario };
+            } else {
+                appState.players.push({
+                    id: 'p_' + Date.now(),
+                    name: currentUsuario,
+                    votes: { ...tempVotosUsuario }
+                });
+            }
+
+            guardarEstado();
+            mostrarToast('¡Tus pronósticos se guardaron correctamente!');
+        }
+
+        // --- PARSER ADMIN ---
         function normalizarTexto(str) {
             return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, ' ').trim();
         }
@@ -356,7 +426,7 @@
             document.getElementById('input-raw-fixture').value = '';
             actualizarVistaPreviaParser();
             guardarEstado();
-            mostrarToast(`¡Se agregaron ${detectados.length} partidos!`);
+            mostrarToast(`¡Se agregaron ${detectados.length} partidos al fixture!`);
         }
 
         function establecerResultadoReal(matchId, winnerId) {
@@ -378,43 +448,14 @@
             guardarEstado();
         }
 
-        function crearParticipanteVacio() {
-            const input = document.getElementById('admin-nombre-amigo');
-            const nombre = input.value.trim();
-            if (!nombre) { mostrarToast('Escribe el nombre del amigo.'); return; }
-
-            if (!appState.players.some(p => p.name.toLowerCase() === nombre.toLowerCase())) {
-                appState.players.push({ id: 'p_' + Date.now(), name: nombre, votes: {} });
-                input.value = '';
-                guardarEstado();
-                mostrarToast('Participante creado.');
-            } else {
-                mostrarToast('Ese participante ya existe.');
-            }
-        }
-
-        function actualizarVotoAmigo(playerId, matchId, teamId) {
-            const player = appState.players.find(p => p.id === playerId);
-            if (player) {
-                player.votes[matchId] = teamId;
-                guardarEstado();
-            }
-        }
-
-        function eliminarParticipante(playerId) {
-            appState.players = appState.players.filter(p => p.id !== playerId);
-            guardarEstado();
-        }
-
         // --- RENDERIZADORES ---
         function actualizarVistas() {
             renderFixturePublico();
+            renderUserAcordeon();
             renderAdminGestion();
-            renderAdminListaVotosAmigos();
             renderTablaRanking();
         }
 
-        // Fixture limpio de solo lectura para los amigos
         function renderFixturePublico() {
             const container = document.getElementById('public-contenedor-acordeon');
             if (!container) return;
@@ -456,7 +497,6 @@
                                     ${m.winnerId === m.away.id ? '<span class="text-[10px] text-emerald-400 font-black mt-1">Ganador</span>' : ''}
                                 </div>
                             </div>
-                            ${m.isOT ? '<div class="text-[10px] text-amber-400 font-black text-center uppercase tracking-wider bg-amber-950/60 py-1 rounded">Definido en Tiempo Extra (OT)</div>' : ''}
                         </div>
                     `;
                 });
@@ -466,7 +506,56 @@
             }
         }
 
-        // Panel de Gestión exclusivo para el Administrador
+        function renderUserAcordeon() {
+            const container = document.getElementById('user-acordeon-partidos');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appState.matches.length === 0) { container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No hay partidos disponibles.</div>`; return; }
+
+            const grupos = {};
+            appState.matches.forEach(m => {
+                const fecha = m.info || 'Por Programar';
+                if (!grupos[fecha]) grupos[fecha] = [];
+                grupos[fecha].push(m);
+            });
+
+            let index = 0;
+            for (const [fecha, partidos] of Object.entries(grupos)) {
+                const details = document.createElement('details');
+                details.className = "bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-md";
+                if (index === 0) details.setAttribute('open', '');
+
+                let html = `<summary class="flex items-center justify-between p-4 bg-slate-900 cursor-pointer"><div class="flex items-center gap-2"><i class="fa-solid fa-calendar-day text-amber-400"></i><span class="text-sm font-black text-white">${fecha}</span></div><i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i></summary><div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-800">`;
+
+                partidos.forEach(m => {
+                    const voto = tempVotosUsuario[m.id];
+                    html += `
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 shadow">
+                            <div class="text-xs text-slate-400 font-bold border-b border-slate-800 pb-2 flex justify-between">
+                                <span>Elige tu ganador</span>
+                                <span class="text-amber-400 font-mono text-[11px]">${m.info}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="seleccionarVotoUsuario('${m.id}', '${m.home.id}')" class="flex flex-col items-center p-3 rounded-xl border transition ${voto === m.home.id ? 'bg-nba-blue text-white border-blue-400 shadow' : 'bg-slate-950 text-slate-300 border-slate-800'}">
+                                    <img src="${m.home.logo}" class="w-10 h-10 object-contain mb-1">
+                                    <span class="font-bold text-xs">${m.home.name}</span>
+                                    ${voto === m.home.id ? '<span class="text-[10px] text-amber-300 font-bold mt-1">Seleccionado</span>' : ''}
+                                </button>
+                                <button onclick="seleccionarVotoUsuario('${m.id}', '${m.away.id}')" class="flex flex-col items-center p-3 rounded-xl border transition ${voto === m.away.id ? 'bg-nba-blue text-white border-blue-400 shadow' : 'bg-slate-950 text-slate-300 border-slate-800'}">
+                                    <img src="${m.away.logo}" class="w-10 h-10 object-contain mb-1">
+                                    <span class="font-bold text-xs">${m.away.name}</span>
+                                    ${voto === m.away.id ? '<span class="text-[10px] text-amber-300 font-bold mt-1">Seleccionado</span>' : ''}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                details.innerHTML = html + `</div>`;
+                container.appendChild(details);
+                index++;
+            }
+        }
+
         function renderAdminGestion() {
             const container = document.getElementById('admin-gestion-acordeon');
             if (!container) return;
@@ -507,45 +596,11 @@
             }
         }
 
-        function renderAdminListaVotosAmigos() {
-            const container = document.getElementById('admin-lista-amigos-votos');
-            if (!container) return;
-            container.innerHTML = '';
-            if (appState.players.length === 0) { container.innerHTML = `<div class="text-xs text-slate-500">No hay participantes cargados.</div>`; return; }
-
-            appState.players.forEach(p => {
-                let optionsHtml = '';
-                appState.matches.forEach(m => {
-                    const votoActual = p.votes[m.id] || '';
-                    optionsHtml += `
-                        <div class="flex items-center justify-between text-xs bg-slate-900 p-2 rounded">
-                            <span class="text-slate-300">${m.home.code} vs ${m.away.code}</span>
-                            <select onchange="actualizarVotoAmigo('${p.id}', '${m.id}', this.value)" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white text-xs">
-                                <option value="">Sin pronóstico</option>
-                                <option value="${m.home.id}" ${votoActual === m.home.id ? 'selected' : ''}>${m.home.name}</option>
-                                <option value="${m.away.id}" ${votoActual === m.away.id ? 'selected' : ''}>${m.away.name}</option>
-                            </select>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                            <span class="font-bold text-white text-xs"><i class="fa-solid fa-user text-amber-400 mr-1"></i> ${p.name}</span>
-                            <button onclick="eliminarParticipante('${p.id}')" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
-                        </div>
-                        <div class="space-y-1.5">${optionsHtml || '<span class="text-[11px] text-slate-500">Carga partidos primero.</span>'}</div>
-                    </div>
-                `;
-            });
-        }
-
         function renderTablaRanking() {
             const tbody = document.getElementById('tabla-posiciones-body');
             if (!tbody) return;
             tbody.innerHTML = '';
-            if (appState.players.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Sin datos en el ranking todavía.</td></tr>`; return; }
+            if (appState.players.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Sin participantes en el ranking todavía.</td></tr>`; return; }
 
             const ranking = appState.players.map(p => {
                 let pts = 0, norm = 0, ot = 0;
