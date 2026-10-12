@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prode NBA - Tabla Oficial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nba: {
+                            blue: '#006BB6',
+                            red: '#C9082A',
+                            dark: '#0B0E14',
+                            card: '#161B26',
+                            border: '#232A3B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Font Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0E14;
+            color: #E2E8F0;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0E14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232A3B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #006BB6;
+        }
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-12">
+
+    <!-- Header Principal -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-nba-blue to-nba-red flex items-center justify-center font-black text-xl text-white shadow-lg">
+                    <i class="fa-solid fa-basketball"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-white tracking-wide">PRODE NBA</h1>
+                    <p class="text-xs text-slate-400 font-medium">Tabla Oficial de Posiciones y Fixture</p>
+                </div>
+            </div>
+
+            <!-- Menú limpio para los participantes (Sin opciones de edición) -->
+            <nav class="flex items-center gap-1 bg-slate-950/60 p-1 rounded-2xl border border-slate-800 text-xs font-bold overflow-x-auto w-full md:w-auto">
+                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-white bg-nba-blue transition">
+                    <i class="fa-solid fa-trophy mr-1.5"></i> Ranking
+                </button>
+                <button onclick="cambiarTab('fixture')" id="btn-tab-fixture" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Fixture y Resultados
+                </button>
+                <button onclick="cambiarTab('equipos')" id="btn-tab-equipos" class="tab-btn flex-1 md:flex-initial px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-shield-halved mr-1.5"></i> Equipos
+                </button>
+                <!-- Botón secreto para acceder al panel de administración -->
+                <button onclick="intentarAccesoAdmin()" class="px-3 py-2 rounded-xl text-slate-600 hover:text-slate-300 transition" title="Panel Admin">
+                    <i class="fa-solid fa-lock"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6 flex-1 w-full">
+
+        <!-- 1. RANKING (Visible para todos) -->
+        <section id="sec-ranking" class="space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-amber-400"></i> Tabla de Clasificación General
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">3 Pts Victoria Normal | 2 Pts Victoria Tiempo Extra (OT)</p>
+                </div>
+                <div>
+                    <button onclick="copiarRankingWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Compartir Ranking por WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950/80 text-slate-400 text-xs font-extrabold uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="py-3.5 px-4 text-center">Pos</th>
+                                <th class="py-3.5 px-4">Participante</th>
+                                <th class="py-3.5 px-4 text-center">Normal (3pts)</th>
+                                <th class="py-3.5 px-4 text-center">OT (2pts)</th>
+                                <th class="py-3.5 px-4 text-center">Total Puntos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-posiciones-body" class="divide-y divide-slate-800/50 font-medium">
+                            <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. FIXTURE (Solo lectura para los amigos) -->
+        <section id="sec-fixture" class="hidden space-y-6">
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-basketball text-nba-red"></i> Calendario y Resultados Oficiales
+                    </h2>
+                </div>
+                <div id="public-contenedor-acordeon" class="space-y-4 pt-2">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. EQUIPOS -->
+        <section id="sec-equipos" class="hidden space-y-8">
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-2">
+                <h2 class="text-xl font-black text-white flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-nba-red"></i> 30 Equipos Oficiales de la NBA
+                </h2>
+                <p class="text-xs text-slate-400">Organizados por Conferencias y Divisiones.</p>
+            </div>
+            <div id="contenedor-directorios" class="space-y-10"></div>
+        </section>
+
+        <!-- 4. PANEL DE ADMINISTRACIÓN (Oculto, protegido por contraseña) -->
+        <section id="sec-admin" class="hidden space-y-6">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-2xl border border-rose-900/40 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gear text-rose-500"></i> Panel de Administración (Privado)
+                    </h2>
+                    <button onclick="cambiarTab('ranking')" class="text-xs text-slate-400 hover:text-white">Volver al sitio público</button>
+                </div>
+                
+                <p class="text-xs text-slate-400">Pega tu calendario completo en texto rápido para actualizar los partidos:</p>
+                <textarea id="input-raw-fixture" oninput="actualizarVistaPreviaParser()" rows="4" placeholder="Pega tu lista de partidos aquí..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-nba-blue font-mono"></textarea>
+
+                <div id="box-preview-parser" class="hidden bg-slate-950/80 border border-amber-500/30 rounded-xl p-3 space-y-2">
+                    <p class="text-xs font-bold text-amber-400"><i class="fa-solid fa-eye"></i> Vista previa:</p>
+                    <div id="lista-preview-matches" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="procesarTextoPegado()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl transition shadow-lg">
+                        Agregar Partidos al Fixture
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gestión de Resultados y Participantes para el Admin -->
+            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-6">
+                <h3 class="text-sm font-black text-white">Marcar Resultados Reales y Cargar Pronósticos de Amigos</h3>
+                <div id="admin-gestion-acordeon" class="space-y-4"></div>
+
+                <!-- Carga manual de pronósticos que te pasen por WhatsApp -->
+                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4 mt-6">
+                    <h4 class="text-xs font-bold text-amber-400">Cargar Pronóstico de un Amigo</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input type="text" id="admin-nombre-amigo" placeholder="Nombre del amigo" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <button onclick="crearParticipanteVacio()" class="bg-nba-blue text-white font-bold text-xs px-4 py-2 rounded-xl">Crear Participante</button>
+                    </div>
+                    <div id="admin-lista-amigos-votos" class="space-y-3 pt-2"></div>
+                </div>
+
+                <div class="flex justify-between pt-4 border-t border-slate-800">
+                    <button onclick="reiniciarTodo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 font-bold text-xs px-3 py-2 rounded-xl">Reiniciar Todo</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notificación Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white font-bold text-xs px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-sm"></i> <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <script>
+        const NBA_TEAMS_DATA = [
+            { id: 'bos', name: 'Boston Celtics', code: 'BOS', conference: 'Este', division: 'Atlántico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/bos.png', aliases: ['boston celtics', 'boston', 'celtics', 'bos', 'celts'] },
+            { id: 'bkn', name: 'Brooklyn Nets', code: 'BKN', conference: 'Este', division: 'Atlántico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/bkn.png', aliases: ['brooklyn nets', 'brooklyn', 'nets', 'bkn', 'bk'] },
+            { id: 'nyk', name: 'New York Knicks', code: 'NYK', conference: 'Este', division: 'Atlántico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/ny.png', aliases: ['new york knicks', 'knicks', 'new york', 'nyk', 'ny'] },
+            { id: 'phi', name: 'Philadelphia 76ers', code: 'PHI', conference: 'Este', division: 'Atlántico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phi.png', aliases: ['philadelphia 76ers', '76ers', 'sixers', 'philadelphia', 'phi', 'philly'] },
+            { id: 'tor', name: 'Toronto Raptors', code: 'TOR', conference: 'Este', division: 'Atlántico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/tor.png', aliases: ['toronto raptors', 'toronto', 'raptors', 'tor', 'raps'] },
+            { id: 'chi', name: 'Chicago Bulls', code: 'CHI', conference: 'Este', division: 'Central', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/chi.png', aliases: ['chicago bulls', 'chicago', 'bulls', 'chi'] },
+            { id: 'cle', name: 'Cleveland Cavaliers', code: 'CLE', conference: 'Este', division: 'Central', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/cle.png', aliases: ['cleveland cavaliers', 'cleveland', 'cavaliers', 'cavs', 'cle'] },
+            { id: 'det', name: 'Detroit Pistons', code: 'DET', conference: 'Este', division: 'Central', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/det.png', aliases: ['detroit pistons', 'detroit', 'pistons', 'det'] },
+            { id: 'ind', name: 'Indiana Pacers', code: 'IND', conference: 'Este', division: 'Central', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/ind.png', aliases: ['indiana pacers', 'indiana', 'pacers', 'ind'] },
+            { id: 'mil', name: 'Milwaukee Bucks', code: 'MIL', conference: 'Este', division: 'Central', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mil.png', aliases: ['milwaukee bucks', 'milwaukee', 'bucks', 'mil'] },
+            { id: 'atl', name: 'Atlanta Hawks', code: 'ATL', conference: 'Este', division: 'Sureste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/atl.png', aliases: ['atlanta hawks', 'atlanta', 'hawks', 'atl'] },
+            { id: 'cha', name: 'Charlotte Hornets', code: 'CHA', conference: 'Este', division: 'Sureste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/cha.png', aliases: ['charlotte hornets', 'charlotte', 'hornets', 'cha'] },
+            { id: 'mia', name: 'Miami Heat', code: 'MIA', conference: 'Este', division: 'Sureste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mia.png', aliases: ['miami heat', 'miami', 'heat', 'mia'] },
+            { id: 'orl', name: 'Orlando Magic', code: 'ORL', conference: 'Este', division: 'Sureste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/orl.png', aliases: ['orlando magic', 'orlando', 'magic', 'orl'] },
+            { id: 'was', name: 'Washington Wizards', code: 'WAS', conference: 'Este', division: 'Sureste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/wsh.png', aliases: ['washington wizards', 'washington', 'wizards', 'was', 'wsh'] },
+            { id: 'den', name: 'Denver Nuggets', code: 'DEN', conference: 'Oeste', division: 'Noroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/den.png', aliases: ['denver nuggets', 'denver', 'nuggets', 'den'] },
+            { id: 'min', name: 'Minnesota Timberwolves', code: 'MIN', conference: 'Oeste', division: 'Noroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/min.png', aliases: ['minnesota timberwolves', 'minnesota', 'timberwolves', 'wolves', 'min', 'twolves'] },
+            { id: 'okc', name: 'Oklahoma City Thunder', code: 'OKC', conference: 'Oeste', division: 'Noroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/okc.png', aliases: ['oklahoma city thunder', 'oklahoma', 'thunder', 'okc'] },
+            { id: 'por', name: 'Portland Trail Blazers', code: 'POR', conference: 'Oeste', division: 'Noroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/por.png', aliases: ['portland trail blazers', 'portland', 'blazers', 'trail blazers', 'por'] },
+            { id: 'uta', name: 'Utah Jazz', code: 'UTA', conference: 'Oeste', division: 'Noroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/utah.png', aliases: ['utah jazz', 'utah', 'jazz', 'uta'] },
+            { id: 'gsw', name: 'Golden State Warriors', code: 'GSW', conference: 'Oeste', division: 'Pacífico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/gs.png', aliases: ['golden state warriors', 'golden state', 'warriors', 'gsw', 'gs'] },
+            { id: 'lac', name: 'LA Clippers', code: 'LAC', conference: 'Oeste', division: 'Pacífico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/lac.png', aliases: ['la clippers', 'clippers', 'lac'] },
+            { id: 'lal', name: 'Los Angeles Lakers', code: 'LAL', conference: 'Oeste', division: 'Pacífico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/lal.png', aliases: ['los angeles lakers', 'lakers', 'lal'] },
+            { id: 'phx', name: 'Phoenix Suns', code: 'PHX', conference: 'Oeste', division: 'Pacífico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phx.png', aliases: ['phoenix suns', 'phoenix', 'suns', 'phx'] },
+            { id: 'sac', name: 'Sacramento Kings', code: 'SAC', conference: 'Oeste', division: 'Pacífico', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/sac.png', aliases: ['sacramento kings', 'sacramento', 'kings', 'sac'] },
+            { id: 'dal', name: 'Dallas Mavericks', code: 'DAL', conference: 'Oeste', division: 'Suroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/dal.png', aliases: ['dallas mavericks', 'dallas', 'mavericks', 'mavs', 'dal'] },
+            { id: 'hou', name: 'Houston Rockets', code: 'HOU', conference: 'Oeste', division: 'Suroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/hou.png', aliases: ['houston rockets', 'houston', 'rockets', 'hou'] },
+            { id: 'mem', name: 'Memphis Grizzlies', code: 'MEM', conference: 'Oeste', division: 'Suroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mem.png', aliases: ['memphis grizzlies', 'memphis', 'grizzlies', 'mem'] },
+            { id: 'nop', name: 'New Orleans Pelicans', code: 'NOP', conference: 'Oeste', division: 'Suroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/no.png', aliases: ['new orleans pelicans', 'pelicans', 'new orleans', 'nop', 'no', 'pels'] },
+            { id: 'sas', name: 'San Antonio Spurs', code: 'SAS', conference: 'Oeste', division: 'Suroeste', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/sa.png', aliases: ['san antonio spurs', 'spurs', 'san antonio', 'sas', 'sa'] }
+        ];
+
+        let appState = { matches: [], players: [] };
+
+        window.onload = function() {
+            cargarEstado();
+            renderDirectorioEquipos();
+            actualizarVistas();
+        };
+
+        function cargarEstado() {
+            const saved = localStorage.getItem('prode_nba_solo_lectura_v1');
+            if (saved) {
+                try { appState = JSON.parse(saved); } catch(e) { appState = { matches: [], players: [] }; }
+            }
+        }
+
+        function guardarEstado() {
+            localStorage.setItem('prode_nba_solo_lectura_v1', JSON.stringify(appState));
+            actualizarVistas();
+        }
+
+        function cambiarTab(tab) {
+            ['ranking', 'fixture', 'equipos', 'admin'].forEach(t => {
+                const sec = document.getElementById(`sec-${t}`);
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (sec) {
+                    if (t === tab) {
+                        sec.classList.remove('hidden');
+                        if (btn) btn.classList.add('bg-nba-blue', 'text-white');
+                    } else {
+                        sec.classList.add('hidden');
+                        if (btn) btn.classList.remove('bg-nba-blue', 'text-white');
+                    }
+                }
+            });
+        }
+
+        function intentarAccesoAdmin() {
+            const pass = prompt("Contraseña de Administrador:");
+            if (pass === "1234") { // Puedes cambiar tu contraseña aquí
+                cambiarTab('admin');
+            } else if (pass !== null) {
+                alert("Contraseña incorrecta");
+            }
+        }
+
+        // --- ADMIN: PARSER Y GESTIÓN ---
+        function normalizarTexto(str) {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, ' ').trim();
+        }
+
+        function identificarEquipoExacto(linea) {
+            const normLinea = normalizarTexto(linea);
+            if (!normLinea) return null;
+            for (let team of NBA_TEAMS_DATA) {
+                for (let alias of team.aliases) {
+                    const normAlias = normalizarTexto(alias);
+                    if (normLinea === normAlias || (normAlias.length > 3 && normLinea.includes(normAlias))) return team;
+                }
+            }
+            return null;
+        }
+
+        function extraerPartidosDeTexto(texto) {
+            const lineas = texto.split('\n').map(l => l.trim());
+            const partidosExtraidos = [];
+            let fechaActual = "Por Programar";
+            let acumuladorEquipos = [];
+
+            for (let i = 0; i < lineas.length; i++) {
+                let linea = lineas[i];
+                if (!linea) continue;
+                let lineaLower = linea.toLowerCase();
+                if (lineaLower.includes('week') || lineaLower.includes('october') || lineaLower.includes('tuesday') || lineaLower.includes('wednesday') || lineaLower.includes('thursday') || lineaLower.includes('friday') || lineaLower.includes('saturday') || lineaLower.includes('sunday')) {
+                    if (!lineaLower.includes('arena') && !lineaLower.includes('center')) { fechaActual = linea; continue; }
+                }
+                let equipo = identificarEquipoExacto(linea);
+                if (equipo) {
+                    acumuladorEquipos.push(equipo);
+                    if (acumuladorEquipos.length === 2) {
+                        if (acumuladorEquipos[0].id !== acumuladorEquipos[1].id) {
+                            partidosExtraidos.push({ home: acumuladorEquipos[0], away: acumuladorEquipos[1], info: fechaActual });
+                        }
+                        acumuladorEquipos = [];
+                    }
+                }
+            }
+            return partidosExtraidos;
+        }
+
+        function actualizarVistaPreviaParser() {
+            const txt = document.getElementById('input-raw-fixture').value;
+            const previewBox = document.getElementById('box-preview-parser');
+            const previewList = document.getElementById('lista-preview-matches');
+            const detectados = extraerPartidosDeTexto(txt);
+
+            if (detectados.length === 0) { previewBox.classList.add('hidden'); previewList.innerHTML = ''; return; }
+            previewBox.classList.remove('hidden');
+            previewList.innerHTML = '';
+            detectados.forEach(m => {
+                previewList.innerHTML += `<div class="bg-slate-900 border border-slate-800 rounded-lg p-2 flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-bold text-white">${m.home.code}</span> vs <span class="font-bold text-white">${m.away.code}</span></div><span class="text-[10px] text-amber-400 font-mono">${m.info}</span></div>`;
+            });
+        }
+
+        function procesarTextoPegado() {
+            const txt = document.getElementById('input-raw-fixture').value;
+            const detectados = extraerPartidosDeTexto(txt);
+            if (detectados.length === 0) { mostrarToast('No se reconocieron equipos.'); return; }
+
+            detectados.forEach(m => {
+                appState.matches.push({
+                    id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    home: m.home, away: m.away, info: m.info, status: 'PENDIENTE', winnerId: null, isOT: false
+                });
+            });
+
+            document.getElementById('input-raw-fixture').value = '';
+            actualizarVistaPreviaParser();
+            guardarEstado();
+            mostrarToast(`¡Se agregaron ${detectados.length} partidos!`);
+        }
+
+        function establecerResultadoReal(matchId, winnerId) {
+            const match = appState.matches.find(m => m.id === matchId);
+            if (!match) return;
+            match.winnerId = winnerId;
+            match.status = 'FINALIZADO';
+            guardarEstado();
+        }
+
+        function toggleOT(matchId, isOT) {
+            const match = appState.matches.find(m => m.id === matchId);
+            if (match) { match.isOT = isOT; guardarEstado(); }
+        }
+
+        function eliminarPartido(matchId) {
+            appState.matches = appState.matches.filter(m => m.id !== matchId);
+            appState.players.forEach(p => delete p.votes[matchId]);
+            guardarEstado();
+        }
+
+        function crearParticipanteVacio() {
+            const input = document.getElementById('admin-nombre-amigo');
+            const nombre = input.value.trim();
+            if (!nombre) { mostrarToast('Escribe el nombre del amigo.'); return; }
+
+            if (!appState.players.some(p => p.name.toLowerCase() === nombre.toLowerCase())) {
+                appState.players.push({ id: 'p_' + Date.now(), name: nombre, votes: {} });
+                input.value = '';
+                guardarEstado();
+                mostrarToast('Participante creado.');
+            } else {
+                mostrarToast('Ese participante ya existe.');
+            }
+        }
+
+        function actualizarVotoAmigo(playerId, matchId, teamId) {
+            const player = appState.players.find(p => p.id === playerId);
+            if (player) {
+                player.votes[matchId] = teamId;
+                guardarEstado();
+            }
+        }
+
+        function eliminarParticipante(playerId) {
+            appState.players = appState.players.filter(p => p.id !== playerId);
+            guardarEstado();
+        }
+
+        // --- RENDERIZADORES ---
+        function actualizarVistas() {
+            renderFixturePublico();
+            renderAdminGestion();
+            renderAdminListaVotosAmigos();
+            renderTablaRanking();
+        }
+
+        // Fixture limpio de solo lectura para los amigos
+        function renderFixturePublico() {
+            const container = document.getElementById('public-contenedor-acordeon');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appState.matches.length === 0) { container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No hay partidos cargados todavía.</div>`; return; }
+
+            const grupos = {};
+            appState.matches.forEach(m => {
+                const fecha = m.info || 'Por Programar';
+                if (!grupos[fecha]) grupos[fecha] = [];
+                grupos[fecha].push(m);
+            });
+
+            let index = 0;
+            for (const [fecha, partidos] of Object.entries(grupos)) {
+                const details = document.createElement('details');
+                details.className = "bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-md";
+                if (index === 0) details.setAttribute('open', '');
+
+                let html = `<summary class="flex items-center justify-between p-4 bg-slate-900 cursor-pointer"><div class="flex items-center gap-2"><i class="fa-solid fa-calendar-day text-amber-400"></i><span class="text-sm font-black text-white">${fecha}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">${partidos.length} partidos</span></div><i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i></summary><div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-800">`;
+
+                partidos.forEach(m => {
+                    const isFinal = m.status === 'FINALIZADO';
+                    html += `
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 shadow">
+                            <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+                                <span class="font-bold text-nba-blue">${m.home.code} vs ${m.away.code}</span>
+                                <span class="px-2 py-0.5 rounded font-bold text-[10px] ${isFinal ? 'bg-emerald-950 text-emerald-400' : 'bg-amber-950 text-amber-400'}">${m.status}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="flex flex-col items-center p-3 rounded-xl border ${m.winnerId === m.home.id ? 'bg-emerald-950/40 border-emerald-500' : 'bg-slate-950 border-slate-800'}">
+                                    <img src="${m.home.logo}" class="w-10 h-10 object-contain mb-1">
+                                    <span class="font-bold text-xs text-white text-center">${m.home.name}</span>
+                                    ${m.winnerId === m.home.id ? '<span class="text-[10px] text-emerald-400 font-black mt-1">Ganador</span>' : ''}
+                                </div>
+                                <div class="flex flex-col items-center p-3 rounded-xl border ${m.winnerId === m.away.id ? 'bg-emerald-950/40 border-emerald-500' : 'bg-slate-950 border-slate-800'}">
+                                    <img src="${m.away.logo}" class="w-10 h-10 object-contain mb-1">
+                                    <span class="font-bold text-xs text-white text-center">${m.away.name}</span>
+                                    ${m.winnerId === m.away.id ? '<span class="text-[10px] text-emerald-400 font-black mt-1">Ganador</span>' : ''}
+                                </div>
+                            </div>
+                            ${m.isOT ? '<div class="text-[10px] text-amber-400 font-black text-center uppercase tracking-wider bg-amber-950/60 py-1 rounded">Definido en Tiempo Extra (OT)</div>' : ''}
+                        </div>
+                    `;
+                });
+                details.innerHTML = html + `</div>`;
+                container.appendChild(details);
+                index++;
+            }
+        }
+
+        // Panel de Gestión exclusivo para el Administrador
+        function renderAdminGestion() {
+            const container = document.getElementById('admin-gestion-acordeon');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appState.matches.length === 0) { container.innerHTML = `<div class="text-xs text-slate-500">Sin partidos cargados.</div>`; return; }
+
+            const grupos = {};
+            appState.matches.forEach(m => {
+                const fecha = m.info || 'Por Programar';
+                if (!grupos[fecha]) grupos[fecha] = [];
+                grupos[fecha].push(m);
+            });
+
+            for (const [fecha, partidos] of Object.entries(grupos)) {
+                const details = document.createElement('details');
+                details.className = "bg-slate-950 border border-slate-800 rounded-xl overflow-hidden";
+                let html = `<summary class="p-3 bg-slate-900 cursor-pointer text-xs font-bold text-white flex justify-between"><span>${fecha}</span><i class="fa-solid fa-chevron-down text-slate-400"></i></summary><div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">`;
+
+                partidos.forEach(m => {
+                    html += `
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-2">
+                            <div class="flex justify-between text-xs text-slate-400 border-b border-slate-800 pb-1">
+                                <span class="font-bold text-nba-blue">${m.home.code} vs ${m.away.code}</span>
+                                <button onclick="eliminarPartido('${m.id}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="establecerResultadoReal('${m.id}', '${m.home.id}')" class="p-2 rounded border text-xs font-bold ${m.winnerId === m.home.id ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'}">${m.home.code} Ganó</button>
+                                <button onclick="establecerResultadoReal('${m.id}', '${m.away.id}')" class="p-2 rounded border text-xs font-bold ${m.winnerId === m.away.id ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'}">${m.away.code} Ganó</button>
+                            </div>
+                            <label class="text-[11px] text-slate-400 flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" onchange="toggleOT('${m.id}', this.checked)" ${m.isOT ? 'checked' : ''} class="rounded bg-slate-950 border-slate-800 text-nba-blue"> Tiempo Extra (OT)
+                            </label>
+                        </div>
+                    `;
+                });
+                details.innerHTML = html + `</div>`;
+                container.appendChild(details);
+            }
+        }
+
+        function renderAdminListaVotosAmigos() {
+            const container = document.getElementById('admin-lista-amigos-votos');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appState.players.length === 0) { container.innerHTML = `<div class="text-xs text-slate-500">No hay participantes cargados.</div>`; return; }
+
+            appState.players.forEach(p => {
+                let optionsHtml = '';
+                appState.matches.forEach(m => {
+                    const votoActual = p.votes[m.id] || '';
+                    optionsHtml += `
+                        <div class="flex items-center justify-between text-xs bg-slate-900 p-2 rounded">
+                            <span class="text-slate-300">${m.home.code} vs ${m.away.code}</span>
+                            <select onchange="actualizarVotoAmigo('${p.id}', '${m.id}', this.value)" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white text-xs">
+                                <option value="">Sin pronóstico</option>
+                                <option value="${m.home.id}" ${votoActual === m.home.id ? 'selected' : ''}>${m.home.name}</option>
+                                <option value="${m.away.id}" ${votoActual === m.away.id ? 'selected' : ''}>${m.away.name}</option>
+                            </select>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="font-bold text-white text-xs"><i class="fa-solid fa-user text-amber-400 mr-1"></i> ${p.name}</span>
+                            <button onclick="eliminarParticipante('${p.id}')" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
+                        </div>
+                        <div class="space-y-1.5">${optionsHtml || '<span class="text-[11px] text-slate-500">Carga partidos primero.</span>'}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTablaRanking() {
+            const tbody = document.getElementById('tabla-posiciones-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (appState.players.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Sin datos en el ranking todavía.</td></tr>`; return; }
+
+            const ranking = appState.players.map(p => {
+                let pts = 0, norm = 0, ot = 0;
+                appState.matches.forEach(m => {
+                    if (m.status === 'FINALIZADO' && m.winnerId && p.votes[m.id] === m.winnerId) {
+                        if (m.isOT) { pts += 2; ot++; } else { pts += 3; norm++; }
+                    }
+                });
+                return { ...p, points: pts, norm, ot };
+            }).sort((a,b) => b.points - a.points || b.norm - a.norm);
+
+            ranking.forEach((p, idx) => {
+                let medal = `${idx + 1}°`;
+                if (idx === 0) medal = '🥇';
+                if (idx === 1) medal = '🥈';
+                if (idx === 2) medal = '🥉';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="py-3.5 px-4 text-center font-black ${idx<3?'text-amber-400 text-base':'text-slate-500'}">${medal}</td>
+                        <td class="py-3.5 px-4 font-bold text-white">${p.name}</td>
+                        <td class="py-3.5 px-4 text-center text-slate-300 font-semibold">${p.norm}</td>
+                        <td class="py-3.5 px-4 text-center text-slate-300 font-semibold">${p.ot}</td>
+                        <td class="py-3.5 px-4 text-center font-black text-amber-400 text-base">${p.points} pts</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderDirectorioEquipos() {
+            const container = document.getElementById('contenedor-directorios');
+            if (!container) return;
+            container.innerHTML = '';
+            ['Este', 'Oeste'].forEach(conf => {
+                container.innerHTML += `<div class="space-y-4"><h3 class="bg-nba-blue text-white px-3.5 py-1.5 rounded-xl text-sm font-bold inline-block">Conferencia ${conf}</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="div-${conf}"></div></div>`;
+                const grid = document.getElementById(`div-${conf}`);
+                NBA_TEAMS_DATA.filter(t => t.conference === conf).forEach(eq => {
+                    grid.innerHTML += `<div class="flex items-center gap-3.5 p-3 rounded-xl bg-slate-900 border border-slate-800"><img src="${eq.logo}" class="w-9 h-9 object-contain"><span class="font-bold text-white text-xs">${eq.name}</span></div>`;
+                });
+            });
+        }
+
+        function copiarRankingWhatsApp() {
+            if (appState.players.length === 0) { mostrarToast('No hay ranking.'); return; }
+            let txt = "🏀 *PRODE NBA - CLASIFICACIÓN* 🏀\n\n";
+            appState.players.forEach((p, i) => {
+                let icon = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🔹";
+                txt += `${icon} *${p.name}*\n`;
+            });
+            navigator.clipboard.writeText(txt);
+            mostrarToast('Ranking copiado');
+        }
+
+        function mostrarToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 3000);
+        }
+
+        function reiniciarTodo() {
+            if (confirm('¿Deseas reiniciar y borrar todos los datos?')) {
+                appState = { matches: [], players: [] };
+                guardarEstado();
+                mostrarToast('Datos reiniciados.');
+            }
+        }
+    </script>
+</body>
+</html>
